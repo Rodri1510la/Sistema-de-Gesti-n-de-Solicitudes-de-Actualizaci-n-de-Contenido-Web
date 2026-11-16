@@ -1,0 +1,68 @@
+// Prisma schema for SGSACW (Sistema de Gestión de Solicitudes de Actualización de Contenido Web)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Usuario {
+  id           Int         @id @default(autoincrement())
+  nombre       String
+  email        String      @unique
+  password     String
+  rol          String      @default("SOLICITANTE") // "ADMIN" | "SOLICITANTE"
+  departamento String      // Ej: "Facultad de Ingeniería", "Admisión", "TEIN"
+  activo       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  solicitudes  Solicitud[]
+  historiales  Historial[]
+}
+
+model Solicitud {
+  id              Int         @id @default(autoincrement())
+  codigo          String      @unique // Ej: "SOL-001"
+  titulo          String
+  descripcion     String
+  seccionPortal   String      // Sección del portal institucional a actualizar
+  prioridad       String      @default("MEDIA") // "BAJA" | "MEDIA" | "ALTA" | "URGENTE"
+  estado          String      @default("PENDIENTE") // "PENDIENTE" | "EN_REVISION" | "EN_PROCESO" | "COMPLETADO" | "RECHAZADO"
+  solicitanteId   Int
+  solicitante     Usuario     @relation(fields: [solicitanteId], references: [id])
+  fechaCompletado DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  archivos        Archivo[]
+  historiales     Historial[]
+}
+
+model Archivo {
+  id             Int       @id @default(autoincrement())
+  nombreOriginal String
+  nombreGuardado String
+  ruta           String
+  tipoMime       String
+  tamano         Int
+  solicitudId    Int
+  solicitud      Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+}
+
+model Historial {
+  id             Int       @id @default(autoincrement())
+  accion         String    // "CREACION" | "CAMBIO_ESTADO" | "EDICION" | "ADJUNTO_SUBIDO"
+  estadoAnterior String?
+  estadoNuevo    String?
+  comentario     String?
+  solicitudId    Int
+  solicitud      Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  usuarioId      Int
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id])
+  createdAt      DateTime  @default(now())
+}
