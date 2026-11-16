@@ -105,6 +105,17 @@ export async function PATCH(
       );
     }
 
+    if (
+      nuevoEstado === "COMPLETADO" &&
+      solicitudExistente.estado !== "COMPLETADO" &&
+      (typeof comentario !== "string" || !comentario.trim())
+    ) {
+      return NextResponse.json(
+        { error: "Registra el detalle de los cambios publicados para completar la solicitud" },
+        { status: 400 }
+      );
+    }
+
     const estadoAnterior = solicitudExistente.estado;
     const datosActualizacion: any = {};
 

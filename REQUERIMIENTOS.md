@@ -124,6 +124,14 @@ Cada acción queda registrada automáticamente:
   - Imágenes `.png`, `.jpg`, `.jpeg` con visualización en escala completa.
 - Permite a los técnicos de TEIN inspeccionar el contenido sin verse obligados a descargar los archivos al disco local.
 
+### 4.10 Generación de Acta de Conformidad y Ficha Técnica en PDF (RF11)
+
+- Descarga directa de acta PDF membretada en formato A4 para solicitudes completadas.
+- Incluye código único, fechas de solicitud y publicación, dependencia solicitante, cambios publicados y sección web intervenida.
+- Incluye recuadros para firma y sello de la Jefatura de TEIN y del Decano/Director solicitante.
+- El detalle de los cambios publicados es obligatorio al completar una solicitud.
+- La generación requiere autenticación y solo permite acceso al personal TEIN o al solicitante dueño del ticket.
+
 ## 5. Estructura de Páginas
 
 ```
