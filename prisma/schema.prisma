@@ -20,8 +20,9 @@ model Usuario {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  solicitudes  Solicitud[]
-  historiales  Historial[]
+  solicitudes    Solicitud[]
+  historiales    Historial[]
+  notificaciones Notificacion[]
 }
 
 model Solicitud {
@@ -65,4 +66,16 @@ model Historial {
   usuarioId      Int
   usuario        Usuario   @relation(fields: [usuarioId], references: [id])
   createdAt      DateTime  @default(now())
+}
+
+model Notificacion {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  mensaje   String
+  enlace    String   // Ej: "/solicitudes/1"
+  leida     Boolean  @default(false)
+  tipo      String   @default("INFO") // "CAMBIO_ESTADO" | "NUEVA_SOLICITUD" | "NUEVO_COMENTARIO"
+  usuarioId Int
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

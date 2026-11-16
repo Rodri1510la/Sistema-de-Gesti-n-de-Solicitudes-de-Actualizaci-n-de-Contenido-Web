@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -13,6 +13,12 @@ import {
   Building2,
   Menu,
   X,
+  Bell,
+  Check,
+  Clock,
+  MessageSquare,
+  AlertCircle,
+  ArrowRight,
 } from "lucide-react";
 
 interface Usuario {
@@ -23,10 +29,89 @@ interface Usuario {
   departamento: string;
 }
 
+interface Notificacion {
+  id: number;
+  titulo: string;
+  mensaje: string;
+  enlace: string;
+  leida: boolean;
+  tipo: string;
+  createdAt: string;
+}
+
 export default function Navbar({ usuario }: { usuario: Usuario }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotificaciones = async () => {
+    try {
+      const res = await fetch("/api/notificaciones");
+      if (res.ok) {
+        const data = await res.json();
+        setNotificaciones(data.notificaciones || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (e) {
+      // Ignorar errores silenciosamente en polling
+    }
+  };
+
+  useEffect(() => {
+    fetchNotificaciones();
+    // Consultar cada 20 segundos
+    const interval = setInterval(fetchNotificaciones, 20000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleMarcarTodasLeidas = async () => {
+    try {
+      await fetch("/api/notificaciones", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      setUnreadCount(0);
+      setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleClickNotificacion = async (notif: Notificacion) => {
+    if (!notif.leida) {
+      try {
+        await fetch("/api/notificaciones", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: notif.id }),
+        });
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+        setNotificaciones((prev) =>
+          prev.map((n) => (n.id === notif.id ? { ...n, leida: true } : n))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setNotifOpen(false);
+    router.push(notif.enlace);
+  };
 
   const handleLogout = async () => {
     try {
@@ -107,8 +192,84 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
             </nav>
           </div>
 
-          {/* Perfil & Logout Desktop */}
+          {/* Iconos de la derecha: Notificaciones, Perfil y Logout */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Campanita de Notificaciones */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none"
+                title="Notificaciones"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Panel Desplegable de Notificaciones */}
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl z-50 overflow-hidden">
+                  <div className="p-3.5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Bell className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs font-bold text-white">Notificaciones</span>
+                      {unreadCount > 0 && (
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">
+                          {unreadCount} nuevas
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarcarTodasLeidas}
+                        className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center space-x-1"
+                      >
+                        <Check className="w-3 h-3" />
+                        <span>Marcar leídas</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60">
+                    {notificaciones.length === 0 ? (
+                      <div className="py-8 text-center text-slate-500 text-xs">
+                        No tienes notificaciones
+                      </div>
+                    ) : (
+                      notificaciones.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => handleClickNotificacion(notif)}
+                          className={`p-3.5 text-xs hover:bg-slate-800/80 cursor-pointer transition-colors ${
+                            !notif.leida ? "bg-blue-950/20 border-l-2 border-blue-500" : ""
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-semibold text-slate-200">
+                              {notif.titulo}
+                            </span>
+                            <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                              {new Date(notif.createdAt).toLocaleTimeString("es-PE", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-slate-400 text-[11px] mt-1 leading-snug">
+                            {notif.mensaje}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Perfil */}
             <div className="text-right">
               <div className="flex items-center justify-end space-x-2">
                 <span className="text-sm font-semibold text-slate-200">
@@ -141,7 +302,16 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
           </div>
 
           {/* Botón Mobile Menu */}
-          <div className="flex md:hidden">
+          <div className="flex items-center space-x-2 md:hidden">
+            <button
+              onClick={() => setNotifOpen(!notifOpen)}
+              className="relative p-2 rounded-md text-slate-300 hover:text-white"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              )}
+            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800"

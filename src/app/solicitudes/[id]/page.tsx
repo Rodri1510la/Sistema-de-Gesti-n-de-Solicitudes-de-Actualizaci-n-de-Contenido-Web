@@ -22,6 +22,9 @@ import {
   ShieldCheck,
   Send,
   RefreshCw,
+  Eye,
+  X,
+  Maximize2,
 } from "lucide-react";
 
 interface Archivo {
@@ -87,6 +90,13 @@ function SolicitudDetailContent() {
   const [actualizando, setActualizando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
+  // Estados para nuevo comentario (Bidireccional)
+  const [nuevoComentario, setNuevoComentario] = useState("");
+  const [enviandoComentario, setEnviandoComentario] = useState(false);
+
+  // Estado para previsualización modal de archivos
+  const [archivoPreview, setArchivoPreview] = useState<Archivo | null>(null);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -115,6 +125,7 @@ function SolicitudDetailContent() {
     loadData();
   }, [solicitudId, router]);
 
+  // Actualizar estado (Admin TEIN)
   const handleCambiarEstado = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!solicitud) return;
@@ -138,10 +149,10 @@ function SolicitudDetailContent() {
         throw new Error(data.error || "Error al actualizar estado");
       }
 
-      setMensajeExito("Estado actualizado e historial registrado correctamente.");
+      setMensajeExito("Estado actualizado y registrado en la bitácora.");
       setComentarioAdmin("");
 
-      // Recargar solicitud actualizada
+      // Recargar solicitud
       const solRes = await fetch(`/api/solicitudes/${solicitudId}`);
       const solData = await solRes.json();
       setSolicitud(solData.solicitud);
@@ -149,6 +160,42 @@ function SolicitudDetailContent() {
       setError(err.message);
     } finally {
       setActualizando(false);
+    }
+  };
+
+  // Enviar comentario / respuesta (Bidireccional: Solicitante y TEIN)
+  const handleEnviarComentario = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!solicitud || !nuevoComentario.trim()) return;
+
+    setEnviandoComentario(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/solicitudes/${solicitud.id}/comentarios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comentario: nuevoComentario.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Error al enviar comentario");
+      }
+
+      setNuevoComentario("");
+      setMensajeExito("Mensaje enviado y notificado correctamente.");
+
+      // Recargar solicitud para mostrar el nuevo comentario
+      const solRes = await fetch(`/api/solicitudes/${solicitudId}`);
+      const solData = await solRes.json();
+      setSolicitud(solData.solicitud);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setEnviandoComentario(false);
     }
   };
 
@@ -183,6 +230,11 @@ function SolicitudDetailContent() {
   }
 
   const isAdmin = usuario?.rol === "ADMIN";
+
+  const isPreviewable = (nombre: string) => {
+    const ext = nombre.split(".").pop()?.toLowerCase();
+    return ext === "pdf" || ext === "png" || ext === "jpg" || ext === "jpeg";
+  };
 
   const getFileIcon = (nombre: string) => {
     const ext = nombre.split(".").pop()?.toLowerCase();
@@ -222,9 +274,17 @@ function SolicitudDetailContent() {
 
         {/* Notificaciones */}
         {mensajeExito && (
-          <div className="mt-4 p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/60 flex items-center space-x-3 text-emerald-200">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
-            <span className="text-sm font-medium">{mensajeExito}</span>
+          <div className="mt-4 p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/60 flex items-center justify-between text-emerald-200">
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
+              <span className="text-sm font-medium">{mensajeExito}</span>
+            </div>
+            <button
+              onClick={() => setMensajeExito(null)}
+              className="text-emerald-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
@@ -301,7 +361,7 @@ function SolicitudDetailContent() {
               </div>
             </div>
 
-            {/* Archivos Adjuntos */}
+            {/* Archivos Adjuntos con Previsualización Modal */}
             <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 shadow-xl">
               <h3 className="text-base font-bold text-white mb-1 flex items-center space-x-2">
                 <span>Documentos y Archivos Adjuntos</span>
@@ -335,16 +395,32 @@ function SolicitudDetailContent() {
                           </p>
                         </div>
                       </div>
-                      <a
-                        href={archivo.ruta}
-                        download={archivo.nombreOriginal}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg bg-slate-700 hover:bg-blue-600 text-slate-200 hover:text-white transition-colors flex-shrink-0"
-                        title="Descargar archivo"
-                      >
-                        <Download className="w-4 h-4" />
-                      </a>
+
+                      <div className="flex items-center space-x-1.5 flex-shrink-0">
+                        {/* Botón Previsualizar para imágenes o PDFs */}
+                        {isPreviewable(archivo.nombreOriginal) && (
+                          <button
+                            type="button"
+                            onClick={() => setArchivoPreview(archivo)}
+                            className="p-1.5 rounded-lg bg-slate-700 hover:bg-emerald-600 text-slate-200 hover:text-white transition-colors"
+                            title="Previsualizar archivo"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {/* Botón Descargar */}
+                        <a
+                          href={archivo.ruta}
+                          download={archivo.nombreOriginal}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg bg-slate-700 hover:bg-blue-600 text-slate-200 hover:text-white transition-colors"
+                          title="Descargar archivo"
+                        >
+                          <Download className="w-4 h-4" />
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -415,9 +491,51 @@ function SolicitudDetailContent() {
             )}
           </div>
 
-          {/* Columna Derecha: Bitácora e Historial de Actividades (1 col) */}
+          {/* Columna Derecha: Comunicación Bidireccional y Bitácora (1 col) */}
           <div className="space-y-6">
-            <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 shadow-xl sticky top-24">
+            {/* Caja de Enviar Respuesta / Consulta (Bidireccional) */}
+            <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 shadow-xl">
+              <h3 className="text-sm font-bold text-white mb-1 flex items-center space-x-2">
+                <MessageSquare className="w-4 h-4 text-blue-400" />
+                <span>Responder / Agregar Observación</span>
+              </h3>
+              <p className="text-[11px] text-slate-400 mb-3">
+                {isAdmin
+                  ? "Escriba una indicación para el solicitante o equipo."
+                  : "Consulte o envíe aclaraciones directamente a la oficina TEIN."}
+              </p>
+
+              <form onSubmit={handleEnviarComentario} className="space-y-3">
+                <textarea
+                  rows={3}
+                  required
+                  value={nuevoComentario}
+                  onChange={(e) => setNuevoComentario(e.target.value)}
+                  placeholder="Escriba un mensaje sobre este requerimiento..."
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950/80 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={enviandoComentario || !nuevoComentario.trim()}
+                    className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-md shadow-blue-600/30 disabled:opacity-50 cursor-pointer"
+                  >
+                    {enviandoComentario ? (
+                      <span>Enviando...</span>
+                    ) : (
+                      <>
+                        <Send className="w-3 h-3" />
+                        <span>Publicar Nota</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Bitácora de Trazabilidad */}
+            <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 shadow-xl">
               <h3 className="text-base font-bold text-white mb-1 flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-blue-400" />
                 <span>Bitácora de Trazabilidad</span>
@@ -470,8 +588,8 @@ function SolicitudDetailContent() {
                           </div>
                         )}
                         {item.accion === "COMENTARIO" && (
-                          <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                            NOTA AGREGADA
+                          <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">
+                            MENSAJE / COMENTARIO
                           </span>
                         )}
                       </div>
@@ -492,6 +610,62 @@ function SolicitudDetailContent() {
             </div>
           </div>
         </div>
+
+        {/* Modal de Previsualización Directa de Archivos */}
+        {archivoPreview && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+              {/* Encabezado del Modal */}
+              <div className="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center space-x-2.5 truncate">
+                  {getFileIcon(archivoPreview.nombreOriginal)}
+                  <span className="text-sm font-bold text-white truncate">
+                    {archivoPreview.nombreOriginal}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    ({(archivoPreview.tamano / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <a
+                    href={archivoPreview.ruta}
+                    download={archivoPreview.nombreOriginal}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Descargar</span>
+                  </a>
+                  <button
+                    onClick={() => setArchivoPreview(null)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Contenido / Visor */}
+              <div className="flex-1 p-4 overflow-auto flex items-center justify-center bg-slate-950/50 min-h-[400px]">
+                {archivoPreview.nombreOriginal.endsWith(".pdf") ? (
+                  <iframe
+                    src={archivoPreview.ruta}
+                    className="w-full h-[70vh] rounded-xl border border-slate-800 bg-white"
+                    title={archivoPreview.nombreOriginal}
+                  />
+                ) : (
+                  <img
+                    src={archivoPreview.ruta}
+                    alt={archivoPreview.nombreOriginal}
+                    className="max-h-[70vh] max-w-full rounded-xl object-contain shadow-lg"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

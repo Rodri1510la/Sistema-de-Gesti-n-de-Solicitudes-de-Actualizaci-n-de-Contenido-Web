@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { crearNotificacion } from "@/lib/notificaciones";
 
 
 // GET /api/solicitudes/[id]
@@ -142,6 +143,16 @@ export async function PATCH(
 
       return updated;
     });
+
+    if (tieneCambioEstado) {
+      await crearNotificacion({
+        usuarioId: solicitudExistente.solicitanteId,
+        titulo: `Estado actualizado: ${nuevoEstado}`,
+        mensaje: `TEIN cambió el estado de tu requerimiento ${solicitudExistente.codigo} a "${nuevoEstado}"${comentario ? ': "' + comentario + '"' : '.'}`,
+        enlace: `/solicitudes/${solicitudId}`,
+        tipo: "CAMBIO_ESTADO",
+      });
+    }
 
     return NextResponse.json({
       success: true,

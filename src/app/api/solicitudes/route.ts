@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-
+import { notificarAdmins } from "@/lib/notificaciones";
 
 // GET /api/solicitudes
 export async function GET(request: Request) {
@@ -200,6 +200,14 @@ export async function POST(request: Request) {
           select: { nombre: true, departamento: true, email: true },
         },
       },
+    });
+
+    // Notificar a administradores de TEIN sobre el nuevo requerimiento
+    await notificarAdmins({
+      titulo: `Nueva solicitud ${codigo}`,
+      mensaje: `${user.departamento} envió: "${titulo.trim().substring(0, 70)}${titulo.length > 70 ? '...' : ''}"`,
+      enlace: `/solicitudes/${nuevaSolicitud.id}`,
+      tipo: "NUEVA_SOLICITUD",
     });
 
     return NextResponse.json(
