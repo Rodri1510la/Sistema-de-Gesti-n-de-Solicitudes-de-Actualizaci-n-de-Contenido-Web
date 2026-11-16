@@ -103,6 +103,27 @@ Cada acción queda registrada automáticamente:
 - Búsqueda por texto en título y descripción
 - Ordenar por: fecha, prioridad, estado
 
+### 4.7 Sistema de Notificaciones en Tiempo Real (In-App)
+
+- Campanita interactiva en el Navbar con contador visual de alertas no leídas (`unreadCount`).
+- Notificaciones automáticas por eventos:
+  - Al Solicitante: Alertas cuando TEIN actualiza el estado (ej. *Pendiente ➔ En Proceso*) o agrega una observación.
+  - Al Administrador (TEIN): Alertas cuando cualquier departamento remite una nueva solicitud o responde a una consulta.
+- Menú desplegable con listado de eventos, botón "Marcar leídas" y redirección con un clic al requerimiento en cuestión.
+
+### 4.8 Comunicación Bidireccional en el Ticket
+
+- Canal directo de diálogo entre el Solicitante (departamento) y la Oficina TEIN dentro de la misma solicitud.
+- Permite subsanar observaciones, solicitar aclaraciones o confirmar detalles sin necesidad de abrir tickets duplicados.
+- Registro inmutable en la bitácora de trazabilidad con autor, área y marca temporal.
+
+### 4.9 Previsualización Modal Directa de Archivos
+
+- Visor modal integrado directamente en la interfaz para archivos compatibles:
+  - Documentos `.pdf` embebidos en alta definición.
+  - Imágenes `.png`, `.jpg`, `.jpeg` con visualización en escala completa.
+- Permite a los técnicos de TEIN inspeccionar el contenido sin verse obligados a descargar los archivos al disco local.
+
 ## 5. Estructura de Páginas
 
 ```
@@ -162,11 +183,22 @@ erDiagram
         text comentario
         datetime createdAt
     }
+    NOTIFICACION {
+        int id PK
+        int usuario_id FK
+        string titulo
+        string mensaje
+        string enlace
+        string tipo
+        boolean leida
+        datetime createdAt
+    }
 
     USUARIO ||--o{ SOLICITUD : "crea"
     SOLICITUD ||--o{ ARCHIVO : "tiene"
     SOLICITUD ||--o{ HISTORIAL : "registra"
     USUARIO ||--o{ HISTORIAL : "ejecuta"
+    USUARIO ||--o{ NOTIFICACION : "recibe"
 ```
 
 ## 7. Requerimientos No Funcionales
@@ -186,4 +218,7 @@ erDiagram
 - [x] Flujo de estados con bitácora e historial inmutable
 - [x] Búsqueda y filtrado dinámico (estado, prioridad, departamento, texto)
 - [x] Interfaz UI completa y responsiva (Tailwind CSS, Dashboard, Formularios, Detalle)
+- [x] Sistema de Notificaciones en Tiempo Real (Campanita con contador y alertas automáticas)
+- [x] Comunicación Bidireccional en el Ticket (Comentarios y respuestas entre TEIN y Solicitante)
+- [x] Previsualización Modal Directa de Archivos (Visor integrado para imágenes y documentos PDF)
 - [x] Verificación y compilación de producción exitosa (`next build` 0 errores)
