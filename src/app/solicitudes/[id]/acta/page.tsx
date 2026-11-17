@@ -129,7 +129,7 @@ export default function ActaConformidadPage() {
       </div>
 
       {/* Hoja Formal A4 Membretada (Apta para impresión y PDF) */}
-      <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 shadow-2xl rounded-lg border border-slate-300 print:shadow-none print:border-none print:p-6 print:max-w-none text-slate-900 font-sans text-xs sm:text-sm">
+      <div className="acta-doc max-w-4xl mx-auto bg-white p-8 sm:p-12 shadow-2xl rounded-lg border border-slate-300 print:shadow-none print:border-none print:p-6 print:max-w-none text-slate-900 font-sans text-xs sm:text-sm">
         {/* Encabezado Institucional UPT */}
         <div className="border-b-2 border-slate-900 pb-4 mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">

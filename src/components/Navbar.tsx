@@ -282,7 +282,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                     ADMIN TEIN
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/20 text-blue-100 border border-blue-500/30">
                     <Building2 className="w-3 h-3 mr-1" />
                     DEPARTAMENTO
                   </span>
