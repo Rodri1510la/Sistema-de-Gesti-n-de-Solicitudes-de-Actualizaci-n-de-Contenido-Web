@@ -62,7 +62,17 @@ export async function GET(request: Request) {
                 email: true,
               },
             },
-            archivos: true,
+            archivos: {
+              select: {
+                id: true,
+                nombreOriginal: true,
+                nombreGuardado: true,
+                ruta: true,
+                tipoMime: true,
+                tamano: true,
+                createdAt: true,
+              },
+            },
             _count: {
               select: { historiales: true, archivos: true },
             },
@@ -193,7 +203,17 @@ export async function POST(request: Request) {
         },
       },
       include: {
-        archivos: true,
+        archivos: {
+          select: {
+            id: true,
+            nombreOriginal: true,
+            nombreGuardado: true,
+            ruta: true,
+            tipoMime: true,
+            tamano: true,
+            createdAt: true,
+          },
+        },
         solicitante: {
           select: { nombre: true, departamento: true, email: true },
         },

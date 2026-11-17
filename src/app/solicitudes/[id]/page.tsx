@@ -620,8 +620,9 @@ function SolicitudDetailContent() {
                       </div>
 
                       {item.comentario && (
-                        <p className="text-slate-300 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] leading-relaxed">
-                          💬 &ldquo;{item.comentario}&rdquo;
+                        <p className="text-slate-300 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] leading-relaxed flex items-start gap-1.5">
+                          <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-slate-500" />
+                          <span>&ldquo;{item.comentario}&rdquo;</span>
                         </p>
                       )}
 

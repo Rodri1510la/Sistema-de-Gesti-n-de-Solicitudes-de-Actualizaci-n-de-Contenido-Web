@@ -20,71 +20,71 @@ const prisma = new PrismaClient({
 
 const demoSolicitudes = [
   {
-    titulo: "[DEMO] Publicación de comunicado institucional",
-    descripcion: "Publicar un comunicado informativo de ejemplo en el portal institucional.",
+    titulo: "Publicación de comunicado institucional",
+    descripcion: "Publicar un comunicado informativo en el portal institucional.",
     seccionPortal: "Portal Institucional > Noticias",
     prioridad: "MEDIA",
     estado: "PENDIENTE",
   },
   {
-    titulo: "[DEMO] Actualización de calendario académico",
+    titulo: "Actualización de calendario académico",
     descripcion: "Reemplazar las fechas del calendario académico con el cronograma aprobado.",
     seccionPortal: "Portal Académico > Calendario",
     prioridad: "ALTA",
     estado: "PENDIENTE",
   },
   {
-    titulo: "[DEMO] Corrección de datos de contacto",
+    titulo: "Corrección de datos de contacto",
     descripcion: "Actualizar teléfonos y horario de atención de la dependencia.",
     seccionPortal: "Directorio Institucional > Contacto",
     prioridad: "BAJA",
     estado: "EN_REVISION",
   },
   {
-    titulo: "[DEMO] Renovación de banner de campaña",
+    titulo: "Renovación de banner de campaña",
     descripcion: "Revisar el banner y el texto alternativo enviados para una campaña institucional.",
     seccionPortal: "Portal Institucional > Banners",
     prioridad: "URGENTE",
     estado: "EN_REVISION",
   },
   {
-    titulo: "[DEMO] Actualización de requisitos de trámite",
+    titulo: "Actualización de requisitos de trámite",
     descripcion: "Actualizar la lista de requisitos y pasos de un trámite institucional.",
     seccionPortal: "Servicios > Trámites",
     prioridad: "MEDIA",
     estado: "EN_PROCESO",
   },
   {
-    titulo: "[DEMO] Publicación de convocatoria",
-    descripcion: "Cargar una convocatoria de ejemplo y sus fechas principales.",
+    titulo: "Publicación de convocatoria",
+    descripcion: "Cargar la convocatoria vigente y sus fechas principales.",
     seccionPortal: "Convocatorias > Vigentes",
     prioridad: "ALTA",
     estado: "EN_PROCESO",
   },
   {
-    titulo: "[DEMO] Actualización de plan curricular publicado",
-    descripcion: "Publicar la versión aprobada del plan curricular de ejemplo.",
+    titulo: "Actualización de plan curricular publicado",
+    descripcion: "Publicar la versión aprobada del plan curricular.",
     seccionPortal: "FAING > Escuela Profesional > Plan Curricular",
     prioridad: "ALTA",
     estado: "COMPLETADO",
   },
   {
-    titulo: "[DEMO] Publicación de cronograma de admisión",
+    titulo: "Publicación de cronograma de admisión",
     descripcion: "Publicar el cronograma de admisión y validar su visualización en móvil.",
     seccionPortal: "Admisión > Cronograma",
     prioridad: "URGENTE",
     estado: "COMPLETADO",
   },
   {
-    titulo: "[DEMO] Solicitud devuelta por información incompleta",
-    descripcion: "Ejemplo de requerimiento que necesita completar sus datos antes de atenderse.",
+    titulo: "Solicitud devuelta por información incompleta",
+    descripcion: "El requerimiento necesita completar sus datos antes de ser atendido.",
     seccionPortal: "Portal Institucional > Información",
     prioridad: "BAJA",
     estado: "RECHAZADO",
   },
   {
-    titulo: "[DEMO] Imagen sin resolución adecuada",
-    descripcion: "Ejemplo de solicitud rechazada porque el material adjunto no cumple los requisitos.",
+    titulo: "Imagen sin resolución adecuada",
+    descripcion: "El material adjunto no cumple con los requisitos mínimos solicitados.",
     seccionPortal: "Portal Institucional > Galería",
     prioridad: "MEDIA",
     estado: "RECHAZADO",
@@ -96,6 +96,13 @@ const stateComments: Record<string, string> = {
   EN_PROCESO: "Se inició la actualización en el portal institucional.",
   COMPLETADO: "Los cambios fueron implementados, revisados y publicados en el portal.",
   RECHAZADO: "La solicitud requiere subsanar las observaciones indicadas antes de continuar.",
+};
+
+const stateTitles: Record<string, string> = {
+  EN_REVISION: "Solicitud en revisión",
+  EN_PROCESO: "Solicitud en proceso",
+  COMPLETADO: "Solicitud completada",
+  RECHAZADO: "Solicitud rechazada",
 };
 
 function daysAgo(days: number) {
@@ -113,15 +120,15 @@ function createDemoPdf() {
       .font("Helvetica-Bold")
       .fontSize(18)
       .fillColor("#2d366f")
-      .text("ANEXO DE DEMOSTRACIÓN");
+      .text("ANEXO DE COMUNICADO INSTITUCIONAL");
     doc.moveDown();
     doc
       .font("Helvetica")
       .fontSize(12)
       .fillColor("#334155")
-      .text("Archivo de ejemplo para probar la descarga y previsualización de adjuntos en SGSACW.");
+      .text("Documento de sustento adjunto a la solicitud de actualización de contenido web.");
     doc.moveDown();
-    doc.text("No contiene documentación institucional real.");
+    doc.text("Emitido por la dependencia solicitante.");
     doc.end();
   });
 }
@@ -148,18 +155,36 @@ async function main() {
     throw new Error("Se necesita al menos una cuenta ADMIN y una cuenta SOLICITANTE activa.");
   }
 
-  const codes = demoSolicitudes.map((_, index) => `DEMO-2026-${String(index + 1).padStart(3, "0")}`);
-  const existing = await prisma.solicitud.findMany({
-    where: { codigo: { in: codes } },
+  const year = new Date().getFullYear();
+  const existentes = await prisma.solicitud.findMany({
+    where: { codigo: { startsWith: `SOL-${year}-` } },
     select: { codigo: true },
+  });
+  const usados = new Set(
+    existentes
+      .map((item) => Number(item.codigo.split("-")[2]))
+      .filter((numero) => Number.isFinite(numero))
+  );
+  let siguiente = 1;
+  const codes = demoSolicitudes.map(() => {
+    while (usados.has(siguiente)) siguiente += 1;
+    const codigo = `SOL-${year}-${String(siguiente).padStart(3, "0")}`;
+    usados.add(siguiente);
+    siguiente += 1;
+    return codigo;
+  });
+
+  const existing = await prisma.solicitud.findMany({
+    where: { titulo: { in: demoSolicitudes.map((item) => item.titulo) } },
+    select: { titulo: true },
   });
   if (existing.length > 0) {
     throw new Error(
-      `Ya existen registros de demostración (${existing.map((item) => item.codigo).join(", ")}); no se insertó nada.`
+      `Ya existen solicitudes con los mismos títulos (${existing.map((item) => item.titulo).join(", ")}); no se insertó nada.`
     );
   }
 
-  const attachmentName = `demo-anexo-${Date.now()}.pdf`;
+  const attachmentName = `anexo-comunicado-${Date.now()}.pdf`;
   const attachmentPdf = await createDemoPdf();
   const attachmentBuffer = new Uint8Array(attachmentPdf.byteLength);
   attachmentBuffer.set(new Uint8Array(attachmentPdf));
@@ -202,7 +227,7 @@ async function main() {
             estadoAnterior: previousState,
             estadoNuevo: state,
             comentario: isCreation
-              ? "Solicitud de demostración creada para probar los flujos del sistema."
+              ? "Solicitud registrada por la dependencia con los requerimientos adjuntos."
               : stateComments[state],
             usuarioId: isCreation ? solicitante.id : admin.id,
             createdAt: new Date(createdAt.getTime() + stateIndex * 3 * 60 * 60 * 1000),
@@ -243,7 +268,7 @@ async function main() {
       const attachmentRequest = requests[4];
       const attachment = await tx.archivo.create({
         data: {
-          nombreOriginal: "Anexo de demostración.pdf",
+          nombreOriginal: "Anexo de comunicado institucional.pdf",
           nombreGuardado: attachmentName,
           ruta: "",
           contenido: attachmentBuffer,
@@ -258,7 +283,7 @@ async function main() {
       });
 
       const notifications = requests.map((request, index) => ({
-        titulo: `[DEMO] ${request.estado === "PENDIENTE" ? "Nueva solicitud" : `Estado: ${request.estado}`}`,
+        titulo: request.estado === "PENDIENTE" ? "Nueva solicitud" : (stateTitles[request.estado] ?? "Solicitud actualizada"),
         mensaje: `${request.codigo}: ${request.titulo}`,
         enlace: `/solicitudes/${request.id}`,
         leida: index % 2 === 0,
@@ -271,8 +296,8 @@ async function main() {
       const pendingRequests = requests.filter((request) => request.estado === "PENDIENTE");
       await tx.notificacion.createMany({
         data: pendingRequests.map((request) => ({
-          titulo: `[DEMO] Nueva solicitud ${request.codigo}`,
-          mensaje: `Solicitud de demostración pendiente: "${request.titulo}"`,
+          titulo: `Nueva solicitud ${request.codigo}`,
+          mensaje: `Solicitud pendiente de atención: "${request.titulo}"`,
           enlace: `/solicitudes/${request.id}`,
           leida: false,
           tipo: "NUEVA_SOLICITUD",

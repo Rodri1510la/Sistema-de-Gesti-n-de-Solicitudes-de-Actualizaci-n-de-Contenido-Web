@@ -34,7 +34,17 @@ export async function GET(
             rol: true,
           },
         },
-        archivos: true,
+        archivos: {
+          select: {
+            id: true,
+            nombreOriginal: true,
+            nombreGuardado: true,
+            ruta: true,
+            tipoMime: true,
+            tamano: true,
+            createdAt: true,
+          },
+        },
         historiales: {
           include: {
             usuario: {

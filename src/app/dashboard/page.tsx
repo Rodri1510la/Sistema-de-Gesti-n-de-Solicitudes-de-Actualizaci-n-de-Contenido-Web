@@ -18,6 +18,8 @@ import {
   RefreshCw,
   Eye,
   SlidersHorizontal,
+  Globe,
+  Paperclip,
 } from "lucide-react";
 
 interface Solicitud {
@@ -391,12 +393,14 @@ export default function DashboardPage() {
                         >
                           {sol.titulo}
                         </Link>
-                        <p className="text-xs text-slate-400 mt-1 truncate">
-                          🎯 {sol.seccionPortal}
+                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5 truncate">
+                          <Globe className="w-3.5 h-3.5 flex-shrink-0 text-slate-500" />
+                          <span className="truncate">{sol.seccionPortal}</span>
                         </p>
                         {sol.archivos && sol.archivos.length > 0 && (
                           <div className="mt-1 text-[11px] text-slate-500 flex items-center gap-1">
-                            <span>📎 {sol.archivos.length} archivo(s) adjunto(s)</span>
+                            <Paperclip className="w-3 h-3" />
+                            <span>{sol.archivos.length} archivo(s) adjunto(s)</span>
                           </div>
                         )}
                       </td>

@@ -159,7 +159,7 @@ export default function UsuariosPage() {
 
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       {u.activo ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Activo
                         </span>

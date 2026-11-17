@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import { DARK_THEME_VARIABLES } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,6 +20,19 @@ export const metadata: Metadata = {
     "Sistema de Gestión de Solicitudes de Actualización de Contenido Web - Oficina de Tecnologías de la Información UPT",
 };
 
+const themeInitializationScript = `
+  try {
+    if (localStorage.getItem("sgsacw-theme") === "dark") {
+      const root = document.documentElement;
+      root.dataset.theme = "dark";
+      const variables = ${JSON.stringify(DARK_THEME_VARIABLES)};
+      Object.entries(variables).forEach(([name, value]) => root.style.setProperty(name, value));
+    }
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+`;
+
 export default function RootLayout({
   children,
 }: {
@@ -27,8 +42,14 @@ export default function RootLayout({
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">{children}</body>
+      <head>
+        <Script id="sgsacw-theme-init" strategy="beforeInteractive">
+          {themeInitializationScript}
+        </Script>
+      </head>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

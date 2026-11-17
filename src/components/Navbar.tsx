@@ -16,6 +16,7 @@ import {
   Bell,
   Check,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Usuario {
   id: number;
@@ -292,6 +293,8 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
               </span>
             </div>
 
+            <ThemeToggle />
+
             <button
               onClick={handleLogout}
               title="Cerrar sesión"
@@ -303,6 +306,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
 
           {/* Botón Mobile Menu */}
           <div className="flex items-center space-x-2 md:hidden">
+            <ThemeToggle />
             <button
               onClick={() => setNotifOpen(!notifOpen)}
               className="relative p-2 rounded-md text-blue-100 hover:text-white"
