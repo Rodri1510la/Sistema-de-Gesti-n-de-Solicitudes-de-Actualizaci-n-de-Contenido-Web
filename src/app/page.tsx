@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -6,10 +7,8 @@ import {
   Shield,
   FileCheck2,
   Clock,
-  Layers,
   ArrowRight,
   LogIn,
-  CheckCircle2,
   Server,
 } from "lucide-react";
 
@@ -27,9 +26,13 @@ export default async function HomePage() {
       <header className="border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
-              UPT
-            </div>
+            <Image
+              src="/upt_logo.png"
+              alt="Escudo UPT"
+              width={40}
+              height={50}
+              className="h-10 w-9 rounded-md bg-white object-contain p-0.5"
+            />
             <div>
               <span className="font-bold text-base tracking-tight text-white block leading-tight">
                 Oficina TEIN

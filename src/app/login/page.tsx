@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogIn, Shield, Building, AlertCircle, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { LogIn, AlertCircle, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,26 +33,25 @@ export default function LoginPage() {
 
       router.push("/dashboard");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
-  };
-
-  const quickFill = (userEmail: string, userPass: string) => {
-    setEmail(userEmail);
-    setPassword(userPass);
-    setError(null);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-100">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         {/* Logo Institucional */}
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-xl shadow-blue-500/20 mb-4 border border-blue-400/30">
-          UPT
-        </div>
+        <Image
+          src="/upt_logo.png"
+          alt="Escudo de la Universidad Privada de Tacna"
+          width={80}
+          height={100}
+          priority
+          className="mx-auto mb-4 h-20 w-auto object-contain"
+        />
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
           SGSACW — TEIN
         </h2>
@@ -131,78 +131,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Cuentas de Acceso Rápido para Demostración */}
-          <div className="mt-8 pt-6 border-t border-slate-800">
-            <p className="text-xs font-semibold text-slate-400 text-center uppercase tracking-wider mb-3">
-              Cuentas de prueba para demostración
-            </p>
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => quickFill("admin.tein@upt.pe", "admin123")}
-                className="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2.5">
-                  <div className="p-1.5 rounded-md bg-amber-500/20 text-amber-400">
-                    <Shield className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white group-hover:text-blue-400">
-                      Administrador TEIN
-                    </p>
-                    <p className="text-[11px] text-slate-400">admin.tein@upt.pe</p>
-                  </div>
-                </div>
-                <span className="text-xs text-blue-400 font-medium group-hover:translate-x-0.5 transition-transform">
-                  Cargar
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => quickFill("ingenieria@upt.pe", "user123")}
-                className="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2.5">
-                  <div className="p-1.5 rounded-md bg-blue-500/20 text-blue-400">
-                    <Building className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white group-hover:text-blue-400">
-                      Facultad de Ingeniería (FAING)
-                    </p>
-                    <p className="text-[11px] text-slate-400">ingenieria@upt.pe</p>
-                  </div>
-                </div>
-                <span className="text-xs text-blue-400 font-medium group-hover:translate-x-0.5 transition-transform">
-                  Cargar
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => quickFill("admision@upt.pe", "user123")}
-                className="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center space-x-2.5">
-                  <div className="p-1.5 rounded-md bg-emerald-500/20 text-emerald-400">
-                    <Building className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white group-hover:text-blue-400">
-                      Dirección de Admisión
-                    </p>
-                    <p className="text-[11px] text-slate-400">admision@upt.pe</p>
-                  </div>
-                </div>
-                <span className="text-xs text-blue-400 font-medium group-hover:translate-x-0.5 transition-transform">
-                  Cargar
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <p className="text-xs text-slate-400">
               ¿Representas a un nuevo departamento?{" "}
               <Link

@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import { NextResponse } from "next/server";
+import path from "node:path";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -29,11 +30,11 @@ function addSection(doc: PDFKit.PDFDocument, title: string) {
   }
 
   const y = doc.y;
-  doc.save().roundedRect(48, y, 499, 24, 3).fill("#e8eef7").restore();
+  doc.save().roundedRect(48, y, 499, 24, 3).fill("#e9ebf5").restore();
   doc
     .font("Helvetica-Bold")
     .fontSize(10)
-    .fillColor("#17345c")
+    .fillColor("#2d366f")
     .text(title.toUpperCase(), 57, y + 7, { width: 481 });
   doc.y = y + 34;
 }
@@ -163,16 +164,15 @@ export async function GET(
       doc.info.Author = "Sistema de Gestión de Solicitudes de Actualización Web - UPT";
 
       const headerY = 48;
-      doc.save().roundedRect(48, headerY, 54, 50, 5).fill("#17345c").restore();
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(17)
-        .fillColor("#ffffff")
-        .text("UPT", 48, headerY + 16, { width: 54, align: "center" });
+      doc.image(path.join(process.cwd(), "public", "upt_logo.png"), 48, headerY - 6, {
+        fit: [54, 64],
+        align: "center",
+        valign: "center",
+      });
       doc
         .font("Helvetica-Bold")
         .fontSize(13)
-        .fillColor("#17345c")
+        .fillColor("#2d366f")
         .text("UNIVERSIDAD PRIVADA DE TACNA", 114, headerY + 2, { width: 300 });
       doc
         .font("Helvetica-Bold")
@@ -189,7 +189,7 @@ export async function GET(
           width: 350,
         });
 
-      doc.moveTo(48, 108).lineTo(547, 108).lineWidth(1.5).stroke("#17345c");
+      doc.moveTo(48, 108).lineTo(547, 108).lineWidth(1.5).stroke("#2d366f");
       doc
         .font("Helvetica-Bold")
         .fontSize(9)

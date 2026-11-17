@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Printer, ArrowLeft } from "lucide-react";
 
 interface Archivo {
@@ -132,9 +133,13 @@ export default function ActaConformidadPage() {
         {/* Encabezado Institucional UPT */}
         <div className="border-b-2 border-slate-900 pb-4 mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 bg-blue-900 text-white font-black text-xl flex items-center justify-center rounded-lg border border-blue-950">
-              UPT
-            </div>
+            <Image
+              src="/upt_logo.png"
+              alt="Escudo de la Universidad Privada de Tacna"
+              width={56}
+              height={70}
+              className="h-14 w-12 object-contain"
+            />
             <div>
               <h1 className="font-bold text-base sm:text-lg tracking-tight uppercase text-blue-950 leading-tight">
                 Universidad Privada de Tacna

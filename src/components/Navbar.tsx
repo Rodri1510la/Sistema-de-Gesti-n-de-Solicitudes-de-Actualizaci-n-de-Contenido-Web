@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  FileText,
   PlusCircle,
   Users,
   LogOut,
@@ -15,10 +15,6 @@ import {
   X,
   Bell,
   Check,
-  Clock,
-  MessageSquare,
-  AlertCircle,
-  ArrowRight,
 } from "lucide-react";
 
 interface Usuario {
@@ -157,9 +153,13 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
           {/* Logo y título */}
           <div className="flex items-center space-x-3">
             <Link href="/dashboard" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-blue-500 transition-colors">
-                UPT
-              </div>
+              <Image
+                src="/upt_logo.png"
+                alt="Escudo UPT"
+                width={40}
+                height={50}
+                className="h-10 w-9 rounded-md bg-white object-contain p-0.5"
+              />
               <div>
                 <span className="font-bold text-base sm:text-lg tracking-tight block leading-tight">
                   TEIN <span className="text-blue-400 font-normal">| SGSACW</span>
