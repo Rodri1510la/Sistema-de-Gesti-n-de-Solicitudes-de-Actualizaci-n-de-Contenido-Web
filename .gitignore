@@ -45,6 +45,11 @@ next-env.d.ts
 prisma/*.db
 prisma/*.db-journal
 
+# logs locales
+dev.log
+prod.log
+linux-build.log
+
 # uploads
 /public/uploads/*
 !/public/uploads/.gitkeep

@@ -97,6 +97,10 @@ La importación se cancela si la base de destino ya contiene datos; no borra tab
 Configura `DATABASE_URL`, `DIRECT_URL` y `JWT_SECRET` en las variables de entorno del proyecto en Vercel. Ejecuta las migraciones antes de desplegar la aplicación.
 Las URLs se usan solo en el servidor; nunca las expongas con el prefijo `NEXT_PUBLIC_`. La aplicación aplica autorización en sus API con su propio JWT; ese JWT no configura automáticamente las políticas RLS de Supabase. Si solo se accederá a la base mediante Prisma, desactiva la Data API de Supabase o configura explícitamente sus permisos.
 
+> **Importante para Vercel:** los scripts `postinstall` y `build` ejecutan `prisma generate`. Es obligatorio porque Vercel reutiliza `node_modules` de su caché y, sin regenerar, el Prisma Client queda desactualizado y el build falla con errores `Property 'xxx' does not exist on type 'PrismaClient'`. No quites esos scripts.
+
+Los adjuntos de las solicitudes se guardan en la columna `Archivo.contenido` (BYTEA) y se sirven mediante `GET /api/archivos/[id]`, porque el sistema de archivos de Vercel es de solo lectura y no persiste entre despliegues. Vercel limita el cuerpo de cada petición a **4.5 MB**, así que un adjunto no debe superar ese tamaño en producción.
+
 ### 5. Iniciar el servidor de desarrollo
 ```bash
 npm run dev

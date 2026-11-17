@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
+import path from "path";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { notificarAdmins } from "@/lib/notificaciones";
 
 // GET /api/solicitudes
@@ -140,14 +139,13 @@ export async function POST(request: Request) {
     const numeroSecuencia = String(countTotal + 1).padStart(3, "0");
     const codigo = `SOL-${anioActual}-${numeroSecuencia}`;
 
-    // Carpeta de subida
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
+    // Carpeta lógica de subida. El contenido se guarda en la base de datos para
+    // que los adjuntos funcionen también en despliegues serverless (Vercel).
     const archivosData: Array<{
       nombreOriginal: string;
       nombreGuardado: string;
       ruta: string;
+      contenido: Uint8Array<ArrayBuffer>;
       tipoMime: string;
       tamano: number;
     }> = [];
@@ -156,17 +154,17 @@ export async function POST(request: Request) {
     for (const file of files) {
       if (!file || typeof file === "string" || file.size === 0) continue;
 
-      const buffer = Buffer.from(await file.arrayBuffer());
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer.byteLength);
+      buffer.set(new Uint8Array(arrayBuffer));
       const ext = path.extname(file.name);
       const safeName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}${ext}`;
-      const filePath = path.join(uploadDir, safeName);
-
-      await writeFile(filePath, buffer);
 
       archivosData.push({
         nombreOriginal: file.name,
         nombreGuardado: safeName,
-        ruta: `/uploads/${safeName}`,
+        ruta: "", // se completa con /api/archivos/{id} después de crear el registro
+        contenido: buffer,
         tipoMime: file.type || "application/octet-stream",
         tamano: file.size,
       });
@@ -201,6 +199,22 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Cada adjunto se sirve desde /api/archivos/{id} (contenido guardado en la BD)
+    if (nuevaSolicitud.archivos.length > 0) {
+      await prisma.$transaction(
+        nuevaSolicitud.archivos.map((archivo) =>
+          prisma.archivo.update({
+            where: { id: archivo.id },
+            data: { ruta: `/api/archivos/${archivo.id}` },
+          })
+        )
+      );
+
+      for (const archivo of nuevaSolicitud.archivos) {
+        archivo.ruta = `/api/archivos/${archivo.id}`;
+      }
+    }
 
     // Notificar a administradores de TEIN sobre el nuevo requerimiento
     await notificarAdmins({

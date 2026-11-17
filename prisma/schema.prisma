@@ -51,6 +51,7 @@ model Archivo {
   nombreOriginal String
   nombreGuardado String
   ruta           String
+  contenido      Bytes? // contenido binario; permite desplegar en entornos sin disco persistente
   tipoMime       String
   tamano         Int
   solicitudId    Int

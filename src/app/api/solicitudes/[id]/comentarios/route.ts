@@ -20,15 +20,30 @@ export async function POST(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
-    const body = await request.json();
-    const { comentario } = body;
-
-    if (!comentario || !comentario.trim()) {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
       return NextResponse.json(
-        { error: "El comentario no puede estar vacío" },
+        { error: "El cuerpo de la solicitud debe contener JSON válido" },
         { status: 400 }
       );
     }
+
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      Array.isArray(body) ||
+      !("comentario" in body) ||
+      typeof body.comentario !== "string" ||
+      !body.comentario.trim()
+    ) {
+      return NextResponse.json(
+        { error: "El comentario debe ser texto y no puede estar vacío" },
+        { status: 400 }
+      );
+    }
+    const comentario = body.comentario.trim();
 
     const solicitud = await prisma.solicitud.findUnique({
       where: { id: solicitudId },
@@ -53,7 +68,7 @@ export async function POST(
         solicitudId,
         usuarioId: user.id,
         accion: "COMENTARIO",
-        comentario: comentario.trim(),
+        comentario,
       },
       include: {
         usuario: {
@@ -73,7 +88,7 @@ export async function POST(
       await crearNotificacion({
         usuarioId: solicitud.solicitanteId,
         titulo: `Mensaje de TEIN en ${solicitud.codigo}`,
-        mensaje: `${user.nombre} agregó una respuesta: "${comentario.trim().substring(0, 80)}${comentario.length > 80 ? '...' : ''}"`,
+        mensaje: `${user.nombre} agregó una respuesta: "${comentario.substring(0, 80)}${comentario.length > 80 ? '...' : ''}"`,
         enlace: `/solicitudes/${solicitud.id}`,
         tipo: "NUEVO_COMENTARIO",
       });
@@ -81,7 +96,7 @@ export async function POST(
       // Solicitante comentó -> Notificar a todos los administradores de TEIN
       await notificarAdmins({
         titulo: `Respuesta de ${user.departamento}`,
-        mensaje: `${user.nombre} comentó en la solicitud ${solicitud.codigo}: "${comentario.trim().substring(0, 80)}${comentario.length > 80 ? '...' : ''}"`,
+        mensaje: `${user.nombre} comentó en la solicitud ${solicitud.codigo}: "${comentario.substring(0, 80)}${comentario.length > 80 ? '...' : ''}"`,
         enlace: `/solicitudes/${solicitud.id}`,
         tipo: "NUEVO_COMENTARIO",
       });
