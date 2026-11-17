@@ -137,7 +137,7 @@ export default async function HomePage() {
           Universidad Privada de Tacna — Oficina de Tecnologías de la Información (TEIN)
         </p>
         <p className="mt-1">
-          Proyecto de Prácticas Pre-Profesionales — Practicante: Rodrigo Soto
+          Proyecto de Prácticas Pre-Profesionales — Practicante: Daniela Duanet Soto Rodríguez
         </p>
       </footer>
     </div>
