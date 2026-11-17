@@ -14,6 +14,7 @@
     "prisma:sqlite:export": "python scripts/export_sqlite_data.py",
     "prisma:sqlite:import": "tsx scripts/import_sqlite_data.ts",
     "prisma:demo-seed": "tsx scripts/seed_demo_data.ts",
+    "prisma:directorio": "tsx scripts/seed_directorio.ts",
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "prisma": {

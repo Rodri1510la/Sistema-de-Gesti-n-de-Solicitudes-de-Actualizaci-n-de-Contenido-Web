@@ -147,7 +147,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
   ];
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 shadow-md">
+    <header className="bg-blue-600 border-b border-blue-700 text-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo y título */}
@@ -162,9 +162,9 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
               />
               <div>
                 <span className="font-bold text-base sm:text-lg tracking-tight block leading-tight">
-                  TEIN <span className="text-blue-400 font-normal">| SGSACW</span>
+                  TEIN                   <span className="text-blue-100 font-normal">| SGSACW</span>
                 </span>
-                <span className="text-[11px] text-slate-400 block leading-none">
+                <span className="text-[11px] text-blue-100/80 block leading-none">
                   Gestión de Contenido Web
                 </span>
               </div>
@@ -180,8 +180,8 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                     href={link.href}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       link.active
-                        ? "bg-slate-800 text-blue-400"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        ? "bg-white/15 text-blue-50"
+                        : "text-blue-100 hover:bg-white/10 hover:text-blue-50"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -198,7 +198,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
             <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none"
+                className="relative p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
                 title="Notificaciones"
               >
                 <Bell className="w-5 h-5" />
@@ -215,7 +215,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                   <div className="p-3.5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Bell className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-bold text-white">Notificaciones</span>
+                      <span className="text-xs font-bold text-slate-800">Notificaciones</span>
                       {unreadCount > 0 && (
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">
                           {unreadCount} nuevas
@@ -272,7 +272,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
             {/* Perfil */}
             <div className="text-right">
               <div className="flex items-center justify-end space-x-2">
-                <span className="text-sm font-semibold text-slate-200">
+                <span className="text-sm font-semibold text-blue-50">
                   {usuario.nombre}
                 </span>
                 {isAdmin ? (
@@ -287,7 +287,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                   </span>
                 )}
               </div>
-              <span className="text-xs text-slate-400 block truncate max-w-[220px]">
+              <span className="text-xs text-blue-100 block truncate max-w-[220px]">
                 {usuario.departamento}
               </span>
             </div>
@@ -295,7 +295,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
             <button
               onClick={handleLogout}
               title="Cerrar sesión"
-              className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-lg text-blue-100 hover:text-red-200 hover:bg-white/10 transition-colors"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -305,7 +305,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
           <div className="flex items-center space-x-2 md:hidden">
             <button
               onClick={() => setNotifOpen(!notifOpen)}
-              className="relative p-2 rounded-md text-slate-300 hover:text-white"
+              className="relative p-2 rounded-md text-blue-100 hover:text-white"
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
@@ -314,7 +314,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-2 rounded-md text-blue-100 hover:text-white hover:bg-white/10"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -324,11 +324,11 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
 
       {/* Menu desplegable Mobile */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 px-4 pt-3 pb-4 space-y-3 bg-slate-900">
-          <div className="pb-2 border-b border-slate-800">
-            <p className="text-sm font-semibold text-white">{usuario.nombre}</p>
-            <p className="text-xs text-slate-400">{usuario.departamento}</p>
-            <span className="mt-1 inline-block text-[11px] font-semibold text-blue-400">
+        <div className="md:hidden border-t border-blue-700 px-4 pt-3 pb-4 space-y-3 bg-blue-600">
+          <div className="pb-2 border-b border-blue-700">
+            <p className="text-sm font-semibold text-blue-50">{usuario.nombre}</p>
+            <p className="text-xs text-blue-100">{usuario.departamento}</p>
+            <span className="mt-1 inline-block text-[11px] font-semibold text-blue-100">
               {isAdmin ? "Rol: Administrador TEIN" : "Rol: Solicitante"}
             </span>
           </div>
@@ -343,8 +343,8 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium ${
                     link.active
-                      ? "bg-slate-800 text-blue-400"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-white/15 text-blue-50"
+                      : "text-blue-100 hover:bg-white/10 hover:text-blue-50"
                   }`}
                 >
                   <Icon className="w-4 h-4" />

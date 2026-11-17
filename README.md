@@ -119,3 +119,11 @@ Estas credenciales son únicamente para la base demo local. La migración conser
 | **Admin TEIN** | `admin.tein@upt.pe` | `admin123` | Oficina de Tecnologías de la Información |
 | **Solicitante FAING** | `ingenieria@upt.pe` | `user123` | Facultad de Ingeniería |
 | **Solicitante Admisión** | `admision@upt.pe` | `user123` | Dirección de Admisión |
+
+Para poblar el directorio institucional (autoridades, oficinas y decanatos) ejecuta:
+
+```bash
+npm run prisma:directorio
+```
+
+El script es idempotente: crea las cuentas que falten actualizando por correo y no modifica contraseñas existentes. Las cuentas nuevas se crean con rol `SOLICITANTE` y la contraseña inicial `upt2026` (puedes cambiarla con la variable `DIRECTORIO_PASSWORD`). Los nombres marcados como *referencial* en `scripts/seed_directorio.ts` no figuran en el directorio público y se usaron como dato de demostración.
