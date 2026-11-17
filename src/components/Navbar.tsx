@@ -216,7 +216,7 @@ export default function Navbar({ usuario }: { usuario: Usuario }) {
                   <div className="p-3.5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Bell className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-bold text-slate-800">Notificaciones</span>
+                      <span className="text-xs font-bold text-white">Notificaciones</span>
                       {unreadCount > 0 && (
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">
                           {unreadCount} nuevas
