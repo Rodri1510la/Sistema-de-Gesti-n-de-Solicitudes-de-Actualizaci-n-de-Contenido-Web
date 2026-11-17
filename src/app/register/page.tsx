@@ -4,31 +4,14 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserPlus, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
-
-const DEPARTAMENTOS_PREDEFINIDOS = [
-  "Facultad de Ingeniería (FAING)",
-  "Facultad de Ciencias Empresariales (FACEM)",
-  "Facultad de Ciencias de la Salud (FACS)",
-  "Facultad de Educación, Ciencias de la Comunicación y Humanidades (FAEDCOH)",
-  "Facultad de Derecho y Ciencias Políticas (FADE)",
-  "Facultad de Arquitectura y Urbanismo (FAU)",
-  "Dirección de Admisión",
-  "Dirección de Asuntos Académicos",
-  "Dirección de Bienestar Universitario",
-  "Dirección de Biblioteca Central",
-  "Dirección de Investigación e Innovación",
-  "Rectorado / Vicerrectorado",
-  "Escuela de Posgrado",
-];
+import { DEPARTAMENTOS } from "@/lib/departamentos";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [departamento, setDepartamento] = useState(DEPARTAMENTOS_PREDEFINIDOS[0]);
-  const [departamentoPersonalizado, setDepartamentoPersonalizado] = useState("");
-  const [usaPersonalizado, setUsaPersonalizado] = useState(false);
+  const [departamento, setDepartamento] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -38,10 +21,8 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
-    const deptoFinal = usaPersonalizado ? departamentoPersonalizado.trim() : departamento;
-
-    if (!deptoFinal) {
-      setError("Por favor indique el departamento o área que representa");
+    if (!DEPARTAMENTOS.some((item) => item === departamento)) {
+      setError("Selecciona un departamento válido de la lista");
       setLoading(false);
       return;
     }
@@ -54,7 +35,7 @@ export default function RegisterPage() {
           nombre,
           email,
           password,
-          departamento: deptoFinal,
+          departamento,
         }),
       });
 
@@ -68,8 +49,8 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al registrar cuenta");
     } finally {
       setLoading(false);
     }
@@ -159,46 +140,21 @@ export default function RegisterPage() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
                 Departamento o Facultad
               </label>
-              {!usaPersonalizado ? (
-                <div className="mt-1 space-y-2">
-                  <select
-                    value={departamento}
-                    onChange={(e) => setDepartamento(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-800/90 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  >
-                    {DEPARTAMENTOS_PREDEFINIDOS.map((dep) => (
-                      <option key={dep} value={dep}>
-                        {dep}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setUsaPersonalizado(true)}
-                    className="text-xs text-blue-400 hover:underline"
-                  >
-                    + ¿Tu departamento no está en la lista? Escríbelo manualmente
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-1 space-y-2">
-                  <input
-                    type="text"
-                    required
-                    value={departamentoPersonalizado}
-                    onChange={(e) => setDepartamentoPersonalizado(e.target.value)}
-                    placeholder="Escriba el nombre exacto de la oficina / área"
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setUsaPersonalizado(false)}
-                    className="text-xs text-blue-400 hover:underline"
-                  >
-                    ← Seleccionar de la lista de facultades
-                  </button>
-                </div>
-              )}
+              <select
+                required
+                value={departamento}
+                onChange={(e) => setDepartamento(e.target.value)}
+                className="mt-1 w-full px-4 py-2.5 rounded-lg bg-slate-800/90 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              >
+                <option value="" disabled>
+                  Selecciona tu departamento
+                </option>
+                {DEPARTAMENTOS.map((dep) => (
+                  <option key={dep} value={dep}>
+                    {dep}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="pt-2">

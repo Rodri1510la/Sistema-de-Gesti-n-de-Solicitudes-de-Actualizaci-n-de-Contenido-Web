@@ -54,7 +54,7 @@ Cada solicitud contiene:
 | `descripcion` | Texto largo | Detalle de los cambios requeridos |
 | `seccion_portal` | Texto | Sección del portal web a modificar |
 | `prioridad` | Enum | Baja, Media, Alta, Urgente |
-| `departamento` | Texto / Relación | Departamento que solicita |
+| `departamento` | Texto / Catálogo institucional | Uno de los 35 departamentos oficiales disponibles al registrarse |
 | `archivos` | Archivos | Documentos Word, imágenes, PDF adjuntos |
 | `estado` | Enum | Estado actual de la solicitud |
 | `fecha_creacion` | Timestamp | Fecha de creación automática |

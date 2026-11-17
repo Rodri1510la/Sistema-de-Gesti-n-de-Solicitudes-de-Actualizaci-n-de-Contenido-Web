@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { DEPARTAMENTOS } from "@/lib/departamentos";
 
 export async function POST(request: Request) {
   try {
     const { nombre, email, password, departamento } = await request.json();
 
-    if (!nombre || !email || !password || !departamento) {
+    if (
+      typeof nombre !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      typeof departamento !== "string" ||
+      !nombre.trim() ||
+      !email.trim() ||
+      !DEPARTAMENTOS.some((item) => item === departamento.trim())
+    ) {
       return NextResponse.json(
-        { error: "Todos los campos son obligatorios" },
+        { error: "Completa los campos y selecciona un departamento válido de la lista" },
         { status: 400 }
       );
     }
