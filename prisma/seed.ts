@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.ALLOW_DEMO_SEED !== "true" || process.env.NODE_ENV === "production") {
+    throw new Error(
+      "La carga demo es destructiva. Para ejecutarla, configura ALLOW_DEMO_SEED=true solo en una base local de desarrollo."
+    );
+  }
+
   console.log("Limpiando base de datos...");
   await prisma.historial.deleteMany();
   await prisma.archivo.deleteMany();

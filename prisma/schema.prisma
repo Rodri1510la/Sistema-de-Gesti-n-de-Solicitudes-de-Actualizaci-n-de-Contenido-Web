@@ -5,20 +5,21 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Usuario {
-  id           Int         @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   nombre       String
-  email        String      @unique
+  email        String   @unique
   password     String
-  rol          String      @default("SOLICITANTE") // "ADMIN" | "SOLICITANTE"
-  departamento String      // Ej: "Facultad de Ingeniería", "Admisión", "TEIN"
-  activo       Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  rol          String   @default("SOLICITANTE") // "ADMIN" | "SOLICITANTE"
+  departamento String // Ej: "Facultad de Ingeniería", "Admisión", "TEIN"
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   solicitudes    Solicitud[]
   historiales    Historial[]
@@ -26,21 +27,23 @@ model Usuario {
 }
 
 model Solicitud {
-  id              Int         @id @default(autoincrement())
-  codigo          String      @unique // Ej: "SOL-001"
+  id              Int       @id @default(autoincrement())
+  codigo          String    @unique // Ej: "SOL-001"
   titulo          String
   descripcion     String
-  seccionPortal   String      // Sección del portal institucional a actualizar
-  prioridad       String      @default("MEDIA") // "BAJA" | "MEDIA" | "ALTA" | "URGENTE"
-  estado          String      @default("PENDIENTE") // "PENDIENTE" | "EN_REVISION" | "EN_PROCESO" | "COMPLETADO" | "RECHAZADO"
+  seccionPortal   String // Sección del portal institucional a actualizar
+  prioridad       String    @default("MEDIA") // "BAJA" | "MEDIA" | "ALTA" | "URGENTE"
+  estado          String    @default("PENDIENTE") // "PENDIENTE" | "EN_REVISION" | "EN_PROCESO" | "COMPLETADO" | "RECHAZADO"
   solicitanteId   Int
-  solicitante     Usuario     @relation(fields: [solicitanteId], references: [id])
+  solicitante     Usuario   @relation(fields: [solicitanteId], references: [id])
   fechaCompletado DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  archivos        Archivo[]
-  historiales     Historial[]
+  archivos    Archivo[]
+  historiales Historial[]
+
+  @@index([solicitanteId])
 }
 
 model Archivo {
@@ -53,11 +56,13 @@ model Archivo {
   solicitudId    Int
   solicitud      Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
   createdAt      DateTime  @default(now())
+
+  @@index([solicitudId])
 }
 
 model Historial {
   id             Int       @id @default(autoincrement())
-  accion         String    // "CREACION" | "CAMBIO_ESTADO" | "EDICION" | "ADJUNTO_SUBIDO"
+  accion         String // "CREACION" | "CAMBIO_ESTADO" | "EDICION" | "ADJUNTO_SUBIDO"
   estadoAnterior String?
   estadoNuevo    String?
   comentario     String?
@@ -66,16 +71,21 @@ model Historial {
   usuarioId      Int
   usuario        Usuario   @relation(fields: [usuarioId], references: [id])
   createdAt      DateTime  @default(now())
+
+  @@index([solicitudId])
+  @@index([usuarioId])
 }
 
 model Notificacion {
   id        Int      @id @default(autoincrement())
   titulo    String
   mensaje   String
-  enlace    String   // Ej: "/solicitudes/1"
+  enlace    String // Ej: "/solicitudes/1"
   leida     Boolean  @default(false)
   tipo      String   @default("INFO") // "CAMBIO_ESTADO" | "NUEVA_SOLICITUD" | "NUEVO_COMENTARIO"
   usuarioId Int
   usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([usuarioId])
 }

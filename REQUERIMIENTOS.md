@@ -25,7 +25,7 @@ Desarrollar un **Sistema Web de Gestión de Solicitudes** que digitalice y centr
 |------------|------------|
 | **Frontend** | React + Next.js (App Router) |
 | **Backend** | Next.js API Routes (Node.js) |
-| **Base de Datos** | SQLite (desarrollo rápido) / PostgreSQL |
+| **Base de Datos** | PostgreSQL en Supabase (Prisma); SQLite como origen de los datos locales |
 | **ORM** | Prisma |
 | **Autenticación** | NextAuth.js / JWT con bcrypt |
 | **Estilos** | Tailwind CSS |
@@ -219,7 +219,8 @@ erDiagram
 ## 8. Progreso del Desarrollo
 
 - [x] Estructura base del proyecto creada (`sgsacw` con Next.js)
-- [x] Configuración de Prisma y Base de Datos (SQLite + seed de datos)
+- [x] Configuración de Prisma para PostgreSQL/Supabase y migración inicial
+- [ ] Aplicación de migraciones y traslado de datos a Supabase (pendiente configurar credenciales remotas)
 - [x] Autenticación (registro, login, roles ADMIN y SOLICITANTE, JWT)
 - [x] CRUD de solicitudes con códigos correlativos (SOL-YYYY-XXX)
 - [x] Subida y descarga de archivos adjuntos (Word, PDF, Imágenes)
